@@ -12,10 +12,7 @@ const MainPage = () => {
     age: '',
     subEventType: '',
   });
-  // const [result, setResult] = useState([]);//הערכים שיוחזרו יוכנסו למערך
-  //   const [currentGreetingIndex, setCurrentGreetingIndex] = useState(0);
-  //   const [isLoading, setIsLoading] = useState(false);
-
+ 
   const [generatedBlessing, setGeneratedBlessing] = useState('');
   const [inputClicked, setInputClicked] = useState(true);
   const [isInputFocused, setIsInputFocused] = useState(true);
@@ -48,47 +45,7 @@ const MainPage = () => {
     setIsInputFocused(false);
 
   };
-//   const handeleSearchBlessing = async () => {
-//     const { eventType, blessingLength, atmosphereType, k, age,subEventType } = inputValues;
-//     if (!eventType) {
-//       alert('בבקשה בחר סוג ברכה');
-//       return;
-//     }
-//     let sentence =
-//      `כתוב 3 ברכות יפות וברמה גבוהה ואיכותית ל ${eventType}, באורך: ${blessingLength}, סגנון הכתיבה שיהיה: ${atmosphereType} ,ל ${k}`;
 
-//     if (age) {
-//       sentence += `, לגיל- ${age}`;
-//     }
-//     if(subEventType){
-//       sentence += `, ל${subEventType} `;
-//     }
-//     if (isRhymeEnabled) {
-//       sentence += ` בחריזה`;
-//     }
-//     else {
-//       sentence += ` ללא חריזה.`
-//     }
-//     console.log(sentence)
-//     try {
-//       const openAIResult = await sendToOpenAI(sentence);
-//       const parsedResult = JSON.parse(openAIResult);
-//       if (Array.isArray(parsedResult.greetings)) {
-//           setResult(parsedResult.greetings);
-//       } else {
-//           setResult([parsedResult.greeting || openAIResult]);
-//       }
-//       } catch (error) {
-//       console.error("error in handeleSearchBlessing", error);
-//       setResult(["ארעה שגיאה בעת הפניה ל OpenAI"])
-//   } finally {
-//       setIsLoading(false);
-//   }
-
-// };
-// const handleNextGreeting = () => {
-//   setCurrentGreetingIndex((prevIndex) => (prevIndex + 1) % result.length);
-// };
     const generateSentence = async () => {
       const { eventType, blessingLength, atmosphereType, k, age,subEventType } = inputValues;
       if (!eventType) {
@@ -113,55 +70,37 @@ const MainPage = () => {
 
 
       const response = await sendToOpenAI(sentence); // Assuming sendToOpenAI is defined elsewhere
-      console.log(response)
+      const parsedResult = JSON.parse(response);
+      
+      let res = '';
+      
+      // Loop through the keys in the parsed result object and construct the string representation
+      for (const key in parsedResult) {
+          if (Object.hasOwnProperty.call(parsedResult, key)) {
+              res += `${key}: ${parsedResult[key]}\n`;
+          }
+      }
+      if (parsedResult.hasOwnProperty("message")) {
+        res = parsedResult["message"];
+    }
+    if (parsedResult.hasOwnProperty("ברכה")) {
+      res = parsedResult["ברכה"];
+  }
+    
+      console.log(res);
+      setGeneratedBlessing(res);
 
-      setGeneratedBlessing(response);
       setSentence(sentence);
       console.log(s)
 
       setIsInputFocused(false);
-
-      if (response !== undefined) {
-        setIsSmaller(true);
-    } 
+      setIsSmaller(true);
+    
   }
 
-  const handleNewBlessing = async () => {
 
-    const { eventType, blessingLength, atmosphereType, k, age, subEventType } = inputValues;
-
-    let sentence = `כתוב ברכה ל ${eventType}, באורך: ${blessingLength}, סגנון הכתיבה שיהיה: ${atmosphereType} ל ${k}`;
-
-    if (age) {
-      sentence += `, לגיל- ${age} `;
-    }
-
-    if (subEventType) {
-      sentence += `, ל${subEventType} `;
-    }
-    if (isRhymeEnabled) {
-      sentence += ` בחריזה`;
-    }
-    else {
-      sentence += ` ללא חריזה.`
-    }
-
-    setSentence(sentence);
-    console.log(s)
-    const response = await sendToOpenAI(sentence); // Assuming sendToOpenAI is defined elsewhere
-    console.log(response)
-
-    setGeneratedBlessing(response);
-    // setIsInputFocused(true)
-    setSentence(sentence);
-    if (response === undefined) {
-      setIsSmaller(false);
-    }
-  };
     return (
       <>
-      
-      <img src={img}></img>
       <div style={{ textAlign: 'center' }}>
         <h1 >המברך יתברך </h1>
         <div>
@@ -275,36 +214,13 @@ const MainPage = () => {
               </div>
             )}
             {inputClicked && !isInputFocused && (
-              <Button variant="outlined" onClick={handleNewBlessing}>אני רוצה ברכה אחרת</Button>
+              <Button variant="outlined" onClick={generateSentence}>אני רוצה ברכה אחרת</Button>
             )}
 
           </div>
   
         )}
-      {/* </div>  */}
-
-      {/* <Button variant="contained" className="button" onClick={handeleSearchBlessing} disabled={isLoading}>
-                        {isLoading ? 'כותב...' : 'כתוב ברכה'}
-                    </Button>
-          <div>
-                {result.length > 0 && (//רנדור של התוצאה
-                <div className="greeting-container">
-                    <div className="greeting-result">
-                        {result[currentGreetingIndex].message}
-                    </div>
-                    <div>
-                    <Button 
-                        onClick={handleNextGreeting} 
-                        variant="contained" 
-                        color="primary"
-                        disabled={currentGreetingIndex>=result.length-1}//בסוף הכפתור יושבת
-                    >
-                        {currentGreetingIndex < result.length - 1 ? 'החלף ברכה ' : 'סיום'}
-                    </Button>
-                    </div>
-                </div>
-                )}
-            </div> */}
+     
      </>
     );
   };

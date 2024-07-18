@@ -22,8 +22,8 @@ export async function sendToOpenAI(blessing) {
         model: "gpt-3.5-turbo-0125",
         response_format: { type: "json_object" },
     });
-    const responseMessage = JSON.parse(completion.choices[0].message.content);
-    const message = responseMessage.message;
+    console.log(completion.choices[0].message.content);
+    return completion.choices[0].message.content;
 
-    return message;
+
 }
